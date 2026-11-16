@@ -89,9 +89,9 @@ def chatInput():
     return (agent_mode, modelOption, userPrompt)
 
 
-#client = anthropic.Client(api_key=st.secrets["sk-ant-svc-1PtARBnU6glXWgKmRww3qEMPYZpcUrc01 cCF8M-YwSDqic7|980v71B9u2pvKkjMI9iJ-1ILhVw-YC4FpkUsNvg4UzmBgAA"], base_url="https://api.anthropic.com")
+#client = anthropic.Client(api_key=st.secrets[""], base_url="https://api.anthropic.com")
 client = Anthropic(
-    api_key="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"# This is the default and can be omitted
+    api_key=""# This is the default and can be omitted
 )
 st.session_state.setdefault("messages", [])
 st.session_state.setdefault("thread_id", str(uuid.uuid4()))
