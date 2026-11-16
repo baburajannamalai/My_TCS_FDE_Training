@@ -1,10 +1,7 @@
-import html
-import uuid
 import os
 
 import anthropic
 import streamlit as st
-from anthropic import Anthropic
 #from htmlTemplates import css, bot_template, user_template
 
 st.title("Claude AI ChatBot")
@@ -57,13 +54,6 @@ div[data-testid="selectEffortBlock"] div[data-testid="stChatInput"] > div {
 </style>
 
 """, unsafe_allow_html=True)
-# UI: render one conversation turn
-#def render_message(role: str, content: str):
- #   template = user_template if role == "user" else bot_template
-    # Escape the text so model output can't break the HTML, and keep its line breaks
-  #  message = html.escape(content).replace("\n", "<br>")
-   # st.write(template.replace("{{MSG}}", message), unsafe_allow_html=True)
-
 def chatInput():
     with st._bottom:
         col1, col2, col3 = st.columns([1.2, 0.8, 3.8], vertical_alignment="center")
@@ -83,43 +73,44 @@ def chatInput():
             userPrompt = st.chat_input("Message...")
 
 
-    ##if prompt:
-       ## with st.chat_message("user"):
-         ##   st.write(f"**({agent_mode},{modelOption})** {prompt}")
     return (agent_mode, modelOption, userPrompt)
 
 
-#client = anthropic.Client(api_key=st.secrets[""], base_url="https://api.anthropic.com")
-client = Anthropic(
-    api_key=""# This is the default and can be omitted
-)
 st.session_state.setdefault("messages", [])
-st.session_state.setdefault("thread_id", str(uuid.uuid4()))
 
 agent_mode, modelOption, userPrompt = chatInput()
-message = client.messages.create(
-    model=agent_mode,
-    max_tokens=4096,
-    output_config={
-        "effort": modelOption
-    },
-    messages=[
-            {
-            "role": "user",
-                "content": userPrompt
-            }
-    ]
-)
+for chat_message in st.session_state.messages:
+    with st.chat_message(chat_message["role"]):
+        st.markdown(chat_message["content"])
 
-print(message)
 if userPrompt:
- st.write(f"**({agent_mode},{modelOption})** {userPrompt}")
+    st.session_state.messages.append({"role": "user", "content": userPrompt})
+    with st.chat_message("user"):
+        st.markdown(userPrompt)
 
-
-#st.session_state.chatHistory += f"**({agent_mode},{modelOption})** {userPrompt}\n"
-#for message in st.session_state.messages:
-   # render_message(message["role"], message["content"])
-
-#info=chatInput()
-
-#print(info[0], info[1], info[2])
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        st.error("Set the ANTHROPIC_API_KEY environment variable to use Claude.")
+    else:
+        client = anthropic.Anthropic(api_key=api_key)
+        try:
+            response = client.messages.create(
+                model=agent_mode,
+                max_tokens=4096,
+                output_config={"effort": modelOption},
+                messages=st.session_state.messages,
+            )
+        except anthropic.APIError as exc:
+            st.error(f"Anthropic API request failed: {exc}")
+        else:
+            response_text = "\n".join(
+                block.text for block in response.content if block.type == "text"
+            )
+            if response_text:
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": response_text}
+                )
+                with st.chat_message("assistant"):
+                    st.markdown(response_text)
+            else:
+                st.error("Anthropic returned no text response.")
