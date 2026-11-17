@@ -82,11 +82,11 @@ st.session_state.setdefault("messages", [])
 def get_api_key() -> str | None:
     """Prefer Streamlit secrets, then fall back to the environment."""
     try:
-        api_key = st.secrets["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"]
+        api_key = st.secrets["api_key"]
     except Exception:
         api_key = None
 
-    return api_key or os.getenv("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")
+    return api_key or os.getenv("ANTHROPIC_API_KEY")
 
 
 agent_mode, modelOption, userPrompt = chatInput()
