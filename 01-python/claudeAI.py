@@ -55,7 +55,7 @@ div[data-testid="selectEffortBlock"] div[data-testid="stChatInput"] > div {
 
 """, unsafe_allow_html=True)
 def chatInput():
-    with st._bottom:
+    with st.bottom:
         col1, col2, col3 = st.columns([1.2, 0.8, 3.8], vertical_alignment="center")
         with col1:
             agent_mode = st.selectbox(
@@ -82,7 +82,7 @@ st.session_state.setdefault("messages", [])
 def get_api_key() -> str | None:
     """Prefer Streamlit secrets, then fall back to the environment."""
     try:
-        api_key = st.secrets["api_key"]
+        api_key = st.secrets["ANTHROPIC_API_KEY"]
     except Exception:
         api_key = None
 
