@@ -42,7 +42,7 @@ div[data-testid="selectEffortBlock"] div[data-testid="selectEffortBlock"] {
     align-items: center;
 }
 
-/* Remove default borders from selectbox and chat_input inside the bar */
+/*  Remove default borders from selectbox and chat_input inside the bar */
 div[data-testid="selectEffortBlock"] div[data-baseweb="select"] > div {
     background-color: transparent !important;
     border: none !important;
@@ -78,19 +78,32 @@ def chatInput():
 
 st.session_state.setdefault("messages", [])
 
+
+def get_api_key() -> str | None:
+    """Prefer Streamlit secrets, then fall back to the environment."""
+    try:
+        api_key = st.secrets["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"]
+    except Exception:
+        api_key = None
+
+    return api_key or os.getenv("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")
+
+
 agent_mode, modelOption, userPrompt = chatInput()
 for chat_message in st.session_state.messages:
     with st.chat_message(chat_message["role"]):
         st.markdown(chat_message["content"])
 
-if userPrompt:
+if userPrompt and userPrompt.strip():
     st.session_state.messages.append({"role": "user", "content": userPrompt})
     with st.chat_message("user"):
         st.markdown(userPrompt)
 
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = get_api_key()
     if not api_key:
-        st.error("Set the ANTHROPIC_API_KEY environment variable to use Claude.")
+        st.error(
+            "Set ANTHROPIC_API_KEY in Streamlit secrets or export it as an environment variable."
+        )
     else:
         client = anthropic.Anthropic(api_key=api_key)
         try:
