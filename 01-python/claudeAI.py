@@ -2,6 +2,7 @@ import os
 
 import anthropic
 import streamlit as st
+from dotenv import load_dotenv 
 #from htmlTemplates import css, bot_template, user_template
 
 st.title("Claude AI ChatBot")

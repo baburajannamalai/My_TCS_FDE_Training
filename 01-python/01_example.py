@@ -1,16 +1,27 @@
-name = "Ada"
-age = 30
-height_m = 1.68
-is_student = False
+# pip install boto3 
 
-print(name, age, height_m, is_student)
+import os 
+import dotenv 
+import boto3
+from dotenv import load_dotenv 
 
-x, y, z = 1, 2, 3
-a = b = c = 0
+# .env file  content into the program
+load_dotenv()
 
-print(x, y, z)
-print(a, b, c)
+client = boto3.client('bedrock-runtime')
 
-# Swap two variables without a temporary
-x, y = y, x
-print(x, y)
+response = client.converse(
+    modelId= "mistral.mistral-7b-instruct-v0:2",
+    messages=[
+        {
+            "role": "user",
+            "content": [{"text": "hi, how are you?"}]
+        }
+    ],
+    inferenceConfig={"temperature": 0.7, "maxTokens": 100}    
+)
+
+print(response)
+
+
+# Frameworks langchain langgraph mf antropic claudeagentsdk [vendors]
